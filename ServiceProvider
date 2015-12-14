@@ -1,0 +1,125 @@
+
+一、简介
+服务提供者是所有 Laravel 应用程序的启动中心。你的应用程序，以及所有 Laravel 的核心服务，都是透过服务提供者启动。
+「启动」指的是什么？一般而言，我们指注册事物，包括注册服务容器绑定、事件监听器、过滤器，甚至路由。
+
+Laravel 中的 config/app.php 这一文件，你会看到 providers 数组。这些是所有将加载至你的应用程序里的服务提供者类。
+
+Artisan 命令行接口可以很容易地通过 make:provider 产生新的提供者：
+php artisan make:provider RiakServiceProvider
+
+1.注册者方法
+<?php namespace App\Providers;
+
+use Riak\Connection;
+use Illuminate\Support\ServiceProvider;
+
+class RiakServiceProvider extends ServiceProvider {
+
+    /**
+     * 在容器中注册绑定。
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton('Riak\Contracts\Connection', function($app)
+        {
+            return new Connection($app['config']['riak']);
+        });
+    }
+
+}
+这个服务提供者只定义了一个 register 方法，并在服务容器中使用此方法定义了一份 Riak\Contracts\Connection 的实现。
+
+2.启动方法
+若我们需要在服务提供者中注册一个事件监听器，该怎么做？
+它应该在 boot 方法中完成。这个方法会在所有的服务提供者注册后才被调用，这能让你使用框架中其他所有已注册过的服务。
+
+<?php namespace App\Providers;
+
+use Event;
+use Illuminate\Support\ServiceProvider;
+
+class EventServiceProvider extends ServiceProvider {
+
+    /**
+     * 执行注册后的启动服务。
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Event::listen('SomeEvent', 'SomeEventHandler');
+    }
+
+    /**
+     * 在容器中注册绑定。
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+}
+我们可以对 boot 方法中的依赖作类型提示。服务容器会自动注入任何你所需要的依赖：
+
+use Illuminate\Contracts\Events\Dispatcher;
+
+public function boot(Dispatcher $events)
+{
+    $events->listen('SomeEvent', 'SomeEventHandler');
+}
+
+3.注册提供者
+
+注册你的提供者，只要把它加入此数组：
+'providers' => [
+    // 其他的服务提供者
+    'App\Providers\AppServiceProvider',
+],
+
+4.缓载提供者
+Laravel 编译并保存所有由延缓服务提供者所提供的服务清单，以及其服务提供者的类名称。只有在当你尝试解析其中的服务时， Laravel 才会加载服务提供者。
+要延缓提供者加载，将 defer 性质设为 true，并定义一个 provides 方法。 provides 方法应返回提供者所注册的服务容器绑定。
+
+<?php namespace App\Providers;
+
+use Riak\Connection;
+use Illuminate\Support\ServiceProvider;
+
+class RiakServiceProvider extends ServiceProvider {
+
+    /**
+     * 指定是否延缓提供者加载。
+     *
+     * @var bool
+     */
+    protected $defer = true;
+
+    /**
+     * 注册服务提供者。
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton('Riak\Contracts\Connection', function($app)
+        {
+            return new Connection($app['config']['riak']);
+        });
+    }
+
+    /**
+     * 取得提供者所提供的服务。
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['Riak\Contracts\Connection'];
+    }
+
+}
