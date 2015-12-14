@@ -4,3 +4,7 @@
 在Services\ServiceImpl里面注册类并实现interface接口
 在Providers里面进行bind，将实现类和接口绑定，实现Ioc
 最后在app.php里面注册provider
+
+
+
+
