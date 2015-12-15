@@ -1,0 +1,28 @@
+
+在取完数据后，记得先进行判断，看是否获取到数据;
+
+正确示例：
+$arr = array("1","2");
+if(size($arr))
+  return "there are data";
+else
+  return "false";
+
+在其他地方处理数据的时候，记得先检测数据是否为空;
+
+正确示例：
+if(size($arr)){
+  foreach($arr as $key=>$val){
+    echo $key.">>".$val;
+  }
+}
+
+通过数据的内容去循环获取其他的数据，避免了无谓的for循环，花费时间;同时也避免数据异常.
+
+错误示例：
+foreach($arr as $key=>$val){
+  if(strlen($val)>0){
+    echo $key.">>".$val;
+  }
+}
+
