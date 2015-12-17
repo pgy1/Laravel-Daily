@@ -1,5 +1,28 @@
 
-在取完数据后，记得先进行判断，看是否获取到数据;
+1.类的初始化处理
+
+class Person{
+  
+  //变量-object类型(包含name,age)
+  private $config;
+  
+  public function __construct($config){
+    $this->config = $config;
+  }
+  
+  public function getName(){
+    return $this->config->name;
+  }
+  
+  public function getAge(){
+    return $this->config->age;
+  }
+  
+}
+
+
+
+2.在取完数据后，记得先进行判断，看是否获取到数据;
 
 正确示例：
 $arr = array("1","2");
