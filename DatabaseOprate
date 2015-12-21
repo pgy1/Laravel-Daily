@@ -3,11 +3,12 @@
 
 1.limit语句
 
-$data['pasts'] = DB::table("pasts")->orderBy("updated_at", "desc")->skip($from)->take($to)->get();<br />
 skip($from)->take($to)相当于limit $from,$to<br />
+$data['pasts'] = DB::table("pasts")->orderBy("updated_at", "desc")->skip($from)->take($to)->get();<br />
 
 2.排序
 
+//根据更新时间排序
 $totalData = DB::table("pasts")->orderBy("updated_at", "desc")->get();
 
 3.翻页
@@ -19,6 +20,18 @@ $page-当前页<br />
 //把数据存入翻页类中<br />
 $data['paginator'] = new Paginator($data['pasts'], count($totalData), $page);<br />
 
+4.删除
 
+//删除where条件的数据
+$result = DB::table("pasts")->where("uid",$uid)->where("pid",$pid)->delete();
+
+5.select 1 from 表
+
+$result = DB::table('favorites')->select(DB::raw(1))->first();
+
+6.获取表里面的一个字段
+
+//返回的数据依旧是object类型，获取pid的方式：$favorite->pid
+$favorite = DB::table("favorites")->select("pid")->where("fid",$fid)->first();
 
 
