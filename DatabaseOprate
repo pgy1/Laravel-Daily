@@ -1,0 +1,24 @@
+
+数据库的一些操作：
+
+1.limit语句
+
+$data['pasts'] = DB::table("pasts")->orderBy("updated_at", "desc")->skip($from)->take($to)->get();<br />
+skip($from)->take($to)相当于limit $from,$to<br />
+
+2.排序
+
+$totalData = DB::table("pasts")->orderBy("updated_at", "desc")->get();
+
+3.翻页
+
+$data['pasts']-总数据<br />
+count($totalData)-数据总条数<br />
+$page-当前页<br />
+
+//把数据存入翻页类中<br />
+$data['paginator'] = new Paginator($data['pasts'], count($totalData), $page);<br />
+
+
+
+
