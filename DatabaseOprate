@@ -25,11 +25,24 @@ $data['paginator'] = new Paginator($data['pasts'], count($totalData), $page);<br
 //删除where条件的数据
 $result = DB::table("pasts")->where("uid",$uid)->where("pid",$pid)->delete();
 
-5.select 1 from 表
+5.增加
+
+//添加多个数据进数据表
+DB::table('users')->insert([
+    ['email' => 'taylor@example.com', 'votes' => 0],
+    ['email' => 'dayle@example.com', 'votes' => 0]
+]);
+
+6.修改
+
+//更新数据表中的数据
+DB::table('users')->where('id', 1)->update(['votes' => 1]);
+
+7.select 1 from 表
 
 $result = DB::table('favorites')->select(DB::raw(1))->first();
 
-6.获取表里面的一个字段
+8.获取表里面的一个字段
 
 //返回的数据依旧是object类型，获取pid的方式：$favorite->pid
 $favorite = DB::table("favorites")->select("pid")->where("fid",$fid)->first();
