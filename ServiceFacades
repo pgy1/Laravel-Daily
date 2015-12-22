@@ -1,0 +1,89 @@
+
+单例服务
+
+1.注册服务
+
+```php
+<?php namespace App\Services;
+
+/*
+作用是返回如下格式：
+{
+    code: "0"
+    result: {
+
+    }
+}
+在controller中的调用方式：AjaxResponse::success();
+整套步骤为：创建Service（服务）->Providers（数据提供）->Facades(门面)->修改app.php
+*/
+
+class AjaxResponse{
+    protected function ajaxResponse($code, $message, $data = null)
+    {
+        $out = [
+            'code' => $code,
+            'message' => $message,
+        ];
+
+        if ($data !== null) {
+            $out['result'] = $data;
+        }
+
+        return response()->json($out);
+    }
+
+    public function success($data = null)
+    {
+        $code = ResultCode::Success;
+        return $this->ajaxResponse(0, '', $data);
+    }
+
+    public function fail($message, $extra = [])
+    {
+        return $this->ajaxResponse(1, $message, $extra);
+    }
+}
+
+?>
+```
+
+2.注册服务，实例化单例的服务类
+
+```php
+<?php namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AjaxResponseServiceProvider extends ServiceProvider {
+
+    public function register()
+    {
+        $this->app->singleton('AjaxResponseService', function () {
+            return new \App\Services\AjaxResponse();
+        });
+    }
+}
+
+?>
+```
+
+3.提供调用的别名
+
+```php
+<?php namespace App\Facades;
+
+use Illuminate\Support\Facades\Facade;
+
+class AjaxResponseFacade extends Facade {
+
+    protected static function getFacadeAccessor() { return 'AjaxResponseService'; }
+
+}
+?>
+```
+4.在config的app.php中的aliases数组里面配置，加入
+
+```shell
+'AjaxResponse' => 'App\Facades\AjaxResponseFacade',
+```
