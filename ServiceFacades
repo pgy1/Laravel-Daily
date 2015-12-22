@@ -82,8 +82,13 @@ class AjaxResponseFacade extends Facade {
 }
 ?>
 
-4.在config的app.php中的aliases数组里面配置，加入
+4.在config的app.php中的数组里面配置，加入
 
+在providers数组里面配置
+
+'App\Providers\DataHandleProvider',
+
+在aliases数组里面配置
 
 'AjaxResponse' => 'App\Facades\AjaxResponseFacade',
 
