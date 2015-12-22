@@ -84,8 +84,6 @@ class AjaxResponseFacade extends Facade {
 
 4.在config的app.php中的aliases数组里面配置，加入
 
-```shell
 
 'AjaxResponse' => 'App\Facades\AjaxResponseFacade',
 
-```
