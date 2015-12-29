@@ -1,7 +1,6 @@
 # Laravel-Daily
 ###学习Lavarel的日常
 
-```php
 1.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/ServiceRegister' target='_blank'>注册服务</a>
 -（服务类的使用方法）
 <br />
@@ -17,7 +16,7 @@
 5.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/Model' target='_blank'>数据模型</a>
 -（可用于关联多表、快速操作数据表）
 <br />
-```
+
 ###其他
 
 
