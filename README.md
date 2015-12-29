@@ -13,6 +13,9 @@
 4.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/ServiceFacades' target='_blank'>服务单例化</a>
 -（让服务类可以直接的在其他类里面以单例的模式调用）
 <br />
+5.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/Model' target='_blank'>数据模型</a>
+-（可用于关联多表、快速操作数据表）
+<br />
 
 其他
 
