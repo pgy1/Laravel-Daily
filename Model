@@ -1,0 +1,46 @@
+
+Model模型
+
+$table 表名
+
+$fillable 当你使用Product::updateOrCreate静态方法时,填充数据时填充你想要的字段数据;
+
+favorite()、user()、past()等方法，分别为关联方法
+
+class Product extends Model {
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'products';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['pid', 'uid', 'name', 'type', 'description', 'price', 'image', 'images', 'payway', 'deadline'];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = ['remember_token'];
+
+    
+    public function favorite(){
+        return $this->belongsTo('App\Favorite','pid');
+    }
+
+    public function user(){
+        return $this->belongsTo('App\User','id');
+    }
+
+    public function past(){
+        return $this->belongsTo('App\Past','pastid');
+    }
+
+}
