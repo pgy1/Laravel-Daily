@@ -1,6 +1,7 @@
 # Laravel-Daily
-学习Lavarel的日常
+###学习Lavarel的日常
 
+```php
 1.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/ServiceRegister' target='_blank'>注册服务</a>
 -（服务类的使用方法）
 <br />
@@ -16,8 +17,9 @@
 5.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/Model' target='_blank'>数据模型</a>
 -（可用于关联多表、快速操作数据表）
 <br />
+```
+###其他
 
-其他
 
 1.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/DataHandleSkill' target='_blank'>数据处理技巧</a>
 -（在传入值或者从数据库获取数据的时候，对数据进行处理，避免出现异常）
