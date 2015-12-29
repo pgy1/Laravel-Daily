@@ -7,6 +7,9 @@ $fillable 当你使用Product::updateOrCreate静态方法时,填充数据时填�
 
 favorite()、user()、past()等方法，分别为关联方法
 
+$product = Product::find($product->pid);
+$favorite = $product->favorite;//获取这个商品相关的favorite信息
+
 class Product extends Model {
 
     /**
