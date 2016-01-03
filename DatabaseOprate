@@ -47,4 +47,7 @@ $result = DB::table('favorites')->select(DB::raw(1))->first();
 //返回的数据依旧是object类型，获取pid的方式：$favorite->pid
 $favorite = DB::table("favorites")->select("pid")->where("fid",$fid)->first();
 
+9.集合 Collection
 
+$collection = Collection::make([1, 2, 3]);
+var_dump($collection[2]);
