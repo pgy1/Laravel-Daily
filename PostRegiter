@@ -1,0 +1,44 @@
+
+注册验证
+
+增加用户注册信息
+
+1.先在app/User.php中增加$fillable的属性
+
+protected $fillable = ['uid', 'name', 'email', 'password'];
+
+2.在App\Services\Registrar中修改create方法
+
+public function create(array $data)
+{
+	return User::create([
+		'uid' => $data['uid'],
+		'name' => $data['name'],
+		'email' => $data['email'],
+		'password' => bcrypt($data['password']),
+	]);
+}
+
+3.在Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers中postRegister方法中处理request的数据
+
+public function postRegister(Request $request)
+{
+	$validator = $this->registrar->validator($request->all());
+
+	if ($validator->fails())
+	{
+		$this->throwValidationException(
+			$request, $validator
+		);
+	}
+	$user = $request->all();
+	$user['uid'] = time().rand(10000,99999);
+
+	$this->auth->login($this->registrar->create($user));
+
+	return redirect($this->redirectPath());
+}
+
+
+如上就可以处理注册用户信息了
+
