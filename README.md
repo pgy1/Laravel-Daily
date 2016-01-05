@@ -16,6 +16,9 @@
 5.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/Model' target='_blank'>数据模型</a>
 -（可用于关联多表、快速操作数据表）
 <br />
+6.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/PostRegiter' target='_blank'>登录注册</a>
+-（增加和验证注册信息）
+<br />
 
 ###其他
 
