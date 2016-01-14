@@ -1,0 +1,177 @@
+当网站结构比较复杂的时候，如果用现有的路由配置文件来处理，可能会有些混乱。
+
+我们通常这样写： （ Laravel 5 中推荐使用 $router->get 替换 Route::get ）
+
+// routes.php
+$router->get('awesome-sauce/{id}', [
+    'as' => 'sauce',
+    'uses' => 'AwesomeController@sauce'
+]);
+Controller :
+
+<?php namespace App\Http\Controllers;
+
+class AwesomeController {
+
+    public function sauce($id) {}
+
+}
+想象一下，如果我们有很多这样的路由配置，管理起来还是很麻烦的。
+
+注意: Laravel 5.0 控制器可以使用 POPO (Plain old PHP Objects) 而不继承.
+
+路由注释
+上面的更改为：
+
+<?php namespace App\Http\Controllers;
+
+class AwesomeController {
+
+    /**
+     * @Get("/awesome-sauce/{id}", as="sauce")
+     */
+    public function sauce($id) {}
+
+}
+接下来，打开 App/Providers/RouteServiceProvider.php, 添加 App\Http\Controllers\AwesomeController 到 $scan 数组：
+
+...
+    protected $scan = [
+        'App\Http\Controllers\HomeController',
+        'App\Http\Controllers\Auth\AuthController',
+        'App\Http\Controllers\Auth\PasswordController',
+        'App\Http\Controllers\AwesomeController'
+    ];
+运行 artisan route:scan , 同时会产生一个路由缓存文件 storage/framework/routes.scanned.php ，会有很多默认的配置，刚刚我们新增的配置大概如下：
+
+<?php
+...
+
+$router->get('awesome-sauce/{id}', [
+    'uses' => 'App\Http\Controllers\AwesomeController@sauce',
+    'as' => 'sauce',
+    'middleware' => [],
+    'where' => [],
+    'domain' => NULL,
+]);
+现在路由就生效了，而且我们也不需要配置 routes.php 。
+
+两个配置
+Laravel 5.0 中，有两个地方可以设置注释配置，控制器和方法：
+
+<?php namespace App\Http\Controllers;
+
+/**
+ * @Resource("foobar/photos", only={"index", "update"}, names={"index": "index.name"})
+ * @Controller(domain="{id}.account.com")
+ * @Middleware("FooMiddleware")
+ * @Middleware("BarMiddleware", except={"update"})
+ * @Middleware("BoomMiddleware", only={"index"})
+ * @Where({"id": "regex"})
+ */
+class BasicController {
+
+    /**
+     * @Middleware("BazMiddleware")
+     * @return Response
+     */
+    public function index() {}
+
+    /**
+     * @return Response
+     */
+    public function update($id) {}
+
+    /**
+     * @Put("/more/{id}", after="log")
+     * @Middleware("QuxMiddleware")
+     */
+    public function doMore($id) {}
+
+}
+可用的参数
+演示几个配置案例：
+
+最简单的配置
+使用最基本的 HTTP 请求动作：
+
+<?php namespace App\Http\Controllers;
+
+class BasicController {
+
+    /**
+     * @Get("awesome")
+     */
+    public function awesome() {}
+
+    /**
+     * @Post("sauce/{id}")
+     */
+    public function sauce($id) {}
+
+    /**
+     * @Put("foo/{id}", as="foo")
+     */
+    public function foo($id) {}
+
+}
+资源控制器
+<?php namespace App\Http\Controllers;
+
+/**
+ * @Resource("foobar/photos", only={"index", "update"}, names={"index": "index.name"})
+ */
+class FoobarPhotosController
+{
+
+    public function index()
+    {
+        // Index, named as index.name
+    }
+
+    public function update()
+    {
+        // Update, un-named
+    }
+
+}
+子域名
+<?php namespace App\Http\Controllers;
+
+/**
+ * @Controller(domain="{user-name}.my-multi-tenant-site.com")
+ */
+class MyStuffController
+{
+    // Do stuff 
+}
+中间件
+Laravel 5 中使用中间件来处理一些过滤事件。
+
+<?php namespace App\Http\Controllers;
+
+/**
+ * @Middleware("FooMiddleware")
+ */
+class MiddlewaredController
+{
+
+    /**
+     * @Middleware("BarMiddleware")
+     */
+    public function barred() {}
+
+}
+参数条件
+<?php namespace App\Http\Controllers;
+
+class RegexedController {
+
+    /**
+     * @Where({"id": "regex"})
+     */
+    public function show($id) {}
+
+}
+
+Original ：http://mattstauffer.co/blog/laravel-5.0-route-annotations
