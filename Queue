@@ -1,0 +1,51 @@
+
+配置
+
+关于队列的定义，这里就不作介绍了。我们要使用异步队列就有两个关键：
+
+1.存储队列的地方
+2.执行任务的服务
+打开
+config/queue.php
+，这是Laravel5关于队列的配置文件。首先我们可以通过
+default
+参数指定默认队列驱动，默认配置是
+sync
+, 这是同步队列，我们要做异步队列首先就要改变这里。假设我们用
+database
+作为驱动，队列任务将会存放在数据库中，而我们后面会另外启动一个后台服务来处理队列任务，这就是异步方式了。
+
+'default' => 'database'
+修改完配置后，我们需要创建一个表来存放队列任务，Laravel5已经在自带artisan命令中内置了一个指令用来生成数据迁移，只需要两条命令即可，当然你得实现配置好数据库连接。
+
+php artisan queue:table
+php artisan migrate
+这样就自动在数据库中创建了 jobs 表。
+
+启动队列监听服务
+
+通过下面这条指令启动队列监听服务，它会自动处理 jobs 表中的队列任务：
+
+php artisan queue:listen
+在linux中，如果想让它在后台执行，可以这样：
+
+nohup php artisan queue:listen &
+添加队列任务
+
+关于队列任务的添加，手册里说的比较详细，这里就简单举个例子吧。
+
+首先，通过artisan创建一个队列命令：
+
+php artisan make:command SendEmail --queued
+这样会生成
+app/Commands/SendEmail.php
+这个类文件，这个类会被标识为队列命令，你可以在
+handle
+方法中写自己的业务逻辑。
+
+在控制器中，可以简单通过
+Bus::dispatch
+分发任务:
+
+Bus::dispatch(new \App\Commands\SendEmail());
+你会发现任务不会立即执行，而是被放到 jobs 表中，由队列监听服务处理。
