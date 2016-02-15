@@ -1,0 +1,36 @@
+
+常见的更新数据流程为：
+
+填写表单。
+根据表单中id字段查询，得到模型。
+验证表单validator。
+根据表单修改模型对应字段值，然后保存save。
+第三步先略过，简单说明下 1、2、4步：
+
+$id = Request::input('id');
+$user = User::find($id);
+$user->name = "xxx";
+$user->age = 10;
+$user->sex = "男";
+//...
+$user->save();
+可以看到，填充数据非常麻烦，要一个字段一个字段的写出来，如果表单字段很多，很容易出错。
+
+而我们知道，在创建模型的时候有一个
+create
+方法可以直接填充表单数据，通过分析 create 方法可知，它其实在内部调用了
+fill
+方法来填充属性，而这个方法是
+public
+的，所以我们可以直接应用到 update 操作中。
+
+$id = Request::input('id');
+$data = Request::input('data');
+$user = User::find($id);
+$user->fill($data);
+$user->save();
+就是这么简单。
+
+Laravel模型更新填充数据小技巧到此介绍完毕。
+
+转载请注明出处：<a href="http://www.ekan001.com/articles/44" target="_blank">Laravel模型更新时填充数据小技巧</a>
