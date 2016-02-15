@@ -1,0 +1,174 @@
+
+首先，我们创建了一个路由：
+
+Route::get('articles',['uses'=>'ArticlesController@index','as'=>'articles.index']);
+假设我们的项目部署在域名根目录，那么可以通过下面的url访问：
+
+http://localhost/articles
+现在，我们在模板中生成链接，有几种方式：
+
+简单模式
+
+<a href="{{ url('/articles') }}">链接</a>
+// or
+<a href="{{ URL::to('/articles') }}">链接</a>
+//为了方便阅读，下面省略html标签
+这种方式，只是简单的将你指定的路径拼接到网站根url上。
+
+路由模式
+
+URL::route('articles.index')
+这种方式是指定匹配注册路由时的 'as' 参数，得到注册的uri。
+
+控制器动作模式
+
+URL::action('ArticlesController@index')
+这种方式是根据注册路由时 'uses' 参数，自动生成映射到控制器方法的uri，规则同
+Route::controller()
+。 举例如下：
+
+ArticlesController@index => articles
+ArticlesController@getAdd => articles/add
+ArticlesController@postAdd => articles/add
+ArticlesController@getDelete => articles/delete
+基本教程到此结束，接下来我们来面对一些令人恼怒的情况。
+
+现在，路由变得更加复杂了，我们定义了一个这样的：
+
+Route::controller('users','UsersController');
+一条简单的语句，Laravel会自动反射
+UsersController
+类，并扫描其中的方法，然后生成普通的映射，举例说明吧，假设控制器中有以下方法：
+
+function getIndex();
+function getEdit();
+function postEdit();
+实际上，通过
+Route::controller()
+最终结果类似于：
+
+Route::get('users',['uses'=>'UsersController@getIndex']);
+Route::get('users/edit',['uses'=>'UsersController@getEdit']);
+Route::post('users/edit',['uses'=>'UsersController@postEdit']);
+说白了，高级路由方法只是对基本方法的封装。
+
+好的，现在我们来生成一条url：
+
+echo URL::action('UsersController@getEdit');
+如愿以偿得到
+http://localhost/users/edit
+，但是我们要加点querystring参数呢？也就是俗称的 get参数。
+
+我们想要得到
+http://localhost/users/edit?id=1
+应该怎么生成？
+
+聪明人已经注意到了
+URL::action()
+有第二个参数，可以指定一个数组，作为url参数，那好，我们来试试。
+
+echo URL::action('UsersController@getEdit',['id'=>1]);
+好了？NO!!你得到的将是：
+
+http://localhost/users/edit/1
+如果你再加一个参数：
+
+echo URL::action('UsersController@getEdit',['id'=>1,'author'=>'admin']);
+得到的是：
+
+http://localhost/users/edit/1/admin
+它根本就忽视了你指定的key，并且没有作为
+?id=1&author=admin
+附加在url末尾。
+
+为什么？！！
+
+肯定是哪里出问题了，这里你不用去扒源码，原因我会在下面给出。
+
+我们先用另外一种方式来测试，前面说过，高级路由是对基本路由的封装，那么我们就构建一个基本路由来测试这个问题！
+
+Route::get('test/edit',['uses'=>'TestController@getEdit'])
+生成URL：
+
+echo URL::action('TestController@getEdit',['id'=>1]);
+得到：
+
+http://localhost/test/edit?id=1
+这特么是对的啊？不是说 Route::controller() 是对 Route::get() 这种基本方法的封装么？
+
+没错，但我们凭什么就认为
+Route::controller('users','UsersController');
+完全等于
+Route::get('users/edit',['uses'=>'UsersController@getEdit']);
+等等？至少 uri部分不一样,我一开始也只是用了”类似“来说明。
+
+通过对源码的剖析，我发现了，当通过
+Route::controller()
+注册路由的时候，它实际上会在转化的时候加点料进去，请查看
+\Illuminate\Routing\ControllerInspector::addUriWildcards
+方法。
+
+实际上，会转化为：
+
+Route::get('users/edit/{one?}/{two?}/{three?}/{four?}/{five?}',['uses'=>'UsersController@getEdit'])
+Laravel默认url生成有个缺陷，它是按照这样的步骤去匹配参数的。
+
+echo URL::action('TestController@getEdit',['id'=>1]);
+它会遍历$parameters,也就是
+['id'=>1]
+。
+
+它会检测路由注册uri中有没有
+{id?}
+这个字符串，有的话就把值放在这个位置，比如
+users/edit/{id?}
+这样的话，就会形成
+users/edit/1
+。
+将参数数组中剩下的元素再次遍历，按顺序替换到uri中剩下的
+{.*\?}
+这种格式的字符串。
+最后将剩余的
+{.*\?}
+删掉，如果$parameters还有剩余元素，则会被作为querystring附加到url末尾。
+也就是说，除非我们在
+id
+前面增加五个参数，否则
+id
+的值只能出现在uri路径中。
+
+很奇葩不是么？
+
+那么如何解决这个问题？
+
+querystring手写到url后面，可以通过
+http_build_query
+
+$params = ['id'=>1];
+echo URL::action('TestController@getEdit').'?'.http_build_query($params);
+修改laravel源码，在
+vendor/laravel/framework/src/Illuminate/Support/helpers.php
+文件中，找到
+preg_replace_sub
+，作如下修改：
+
+function preg_replace_sub($pattern, &$replacements, $subject)
+{
+    return preg_replace_callback($pattern, function($match) use (&$replacements)
+    {
+        foreach ($replacements as $key => $value)
+        {
+            //return array_shift($replacements);
+            if (is_numeric($key)) {
+                unset($replacements[$key]);
+                return $value;
+            }
+        }
+
+    }, $subject);
+}
+用哪种，取决于你自己。
+
+就说这么多吧，有什么疑问请发邮件给我，邮箱地址在页面底部。
+
+转载请注明出处：<a href="http://www.ekan001.com/articles/43" target="_blank">Laravel 深入理解路由和URL生成</a>
