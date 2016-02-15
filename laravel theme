@@ -1,0 +1,69 @@
+众所周知，laravel渲染模板是通过
+View::make()
+实现的,需要显式指定模板文件路径：
+
+function index()
+{
+    return View::make('index.index');
+}
+既然这样，我们就可以自己实现模板主题功能，我们只需要将模板文件放到一个主题名称对应的目录里就行，比如默认主题为 default 的话，我们就这样写：
+
+function index()
+{
+    return View::make('default.index.index');
+}
+自定义主题 custom :
+
+function index()
+{
+    return View::make('custom.index.index');
+}
+从配置文件中读取主题名：
+
+function index()
+{
+    return View::make(Config::get('app.theme','default').'.index.index');
+}
+这样基本就实现模板主题化的功能了，但还存在一个问题，那就是custom主题必须实现所有default主题的所有模板，否则会导致某些页面模板文件不存在报错，那么进一步优化：
+
+function index()
+{
+    $theme = Config::get('app.theme','default');
+    $tpl = $theme.'.index.index';
+    if (!View::exists($tpl)) {
+        $tpl = 'default.index.index';
+    }
+    return View::make($tpl);
+}
+就是在渲染模板之前，先检测模板文件是否存在，不存在的话则使用default主题中对应的模板。
+
+这么多行代码，我们可以继续封装一下，这时候要用到Response对象了，我们知道
+Response::view()
+等同于
+View::make()
+,而Response还有一个方法
+Response::macro()
+方法可以用来定义一个宏，我们可以把逻辑封装到宏里面：
+
+Response::macro('render',function($path,$data=array()){
+    $theme = Config::get('app.theme','default');
+    $tpl = $theme.'.'.$path;
+    if (!View::exists($tpl)) {
+        $tpl = 'default.' . $path;
+    }
+    return Response::view($tpl,$data);
+});
+使用：
+
+function index()
+{
+    $bindings = array(
+        'title' => '首页'
+    );
+    return Response::render('index.index',$bindings);
+}
+需要注意的是传入模板的变量得通过
+Response::render
+的第二个参数。
+
+转载请注明出处：<a href="http://www.ekan001.com/articles/16" target="_blank">laravel实现模板主题功能</a>
