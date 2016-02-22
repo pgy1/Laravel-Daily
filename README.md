@@ -26,3 +26,10 @@
 1.<a href='https://github.com/pgy1/Laravel-Daily/blob/master/DataHandleSkill' target='_blank'>数据处理技巧</a>
 -（在传入值或者从数据库获取数据的时候，对数据进行处理，避免出现异常）
 <br />
+
+###注意
+
+1.在某些情况下，数据的处理，如果客观不存在一个物体，可以用一个虚拟物体代替，避免前台处理出现很多空指针问题。
+
+
+
