@@ -1,0 +1,23 @@
+
+著作权归作者所有。
+商业转载请联系作者获得授权，非商业转载请注明出处。
+作者：Guo Jonathan
+链接：https://www.zhihu.com/question/30576734/answer/48607159
+来源：知乎
+
+描述实在太不详细，但我大概猜测你用的是Laravel 5. 我只有假设一下你的环境：
+Linux(CentOS, OSX)Apache首先确定你得Apache用户，比如Apache, http或者是_www. 
+
+比如OSX默认就是_www.加写入权限给storage和vendor目录：
+chmod -R g+w /path/to/laravel/bootstrap
+chmod -R g+w /path/to/laravel/storage
+chmod -R g+w /path/to/laravel/vendor
+
+改变所属Group. 把下面_www替换为你得Apache用户。
+chmod -R _www /path/to/laravel/bootstrap
+chgrp -R _www /path/to/laravel/storage
+chgrp -R _www /path/to/laravel/vendor
+
+如果你不考虑太多安全性可以干脆给两个目录a+w，或者777就好。
+
+如果有用uploadify等插件上传文件时，记得也给相应的文件夹授予权限。
