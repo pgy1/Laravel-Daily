@@ -5,6 +5,8 @@
 链接：https://www.zhihu.com/question/30576734/answer/48607159
 来源：知乎
 
+laravel安装完成后，访问public目录，显示一片空白怎么回事？
+
 描述实在太不详细，但我大概猜测你用的是Laravel 5. 我只有假设一下你的环境：
 Linux(CentOS, OSX)Apache首先确定你得Apache用户，比如Apache, http或者是_www. 
 
